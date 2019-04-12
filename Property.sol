@@ -14,7 +14,7 @@ contract Property
         Address = propertyAddress;
     }
     
-    function AddBimModel(string memory bimModelUrl, string memory bimModelHash) public
+    function InitializeBimModel(string memory bimModelUrl, string memory bimModelHash) public
     {
         if( msg.sender != PropertyOwner|| sh.IsStringEmpty(bimModelUrl) || sh.IsStringEmpty(bimModelHash))
         {
@@ -22,5 +22,9 @@ contract Property
         }
         BimModelUrl = bimModelUrl;
         BimModelHash = bimModelHash;
+    }
+    function SetBimModel(address assetWorkflow, uint epochTimeStamp, string memory bimModelHash, string memory bimModelUrl) public
+    {
+        
     }
 }
