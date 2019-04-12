@@ -1,8 +1,8 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.4.25;
 
 contract AssetWorkflow
 {
-    enum StateType { Active, Commitment, WorkFinished, Approved, Rejected, Cancelled  }
+    enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected  }
     address public PropertyOwner;
     address public Inspector;
     address public Contractor;
@@ -11,11 +11,11 @@ contract AssetWorkflow
     
     StateType public State;
     string public Description;
-    uint public Budget;
+    uint256 public Budget;
 
     constructor(string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
     {
-        BimModelHash=bimModelHash;
+        BimModelHash = bimModelHash;
         BimModelUrl = bimModelUrl;
         PropertyOwner = msg.sender;
         Budget = budget;
@@ -32,7 +32,7 @@ contract AssetWorkflow
         State = StateType.Cancelled;
     }
 
-    function ModifyBudget(uint256 adjustedBudget) public
+    function ModifyBudget(uint256 budget) public
     {
         if (State != StateType.Active)
         {
@@ -42,7 +42,7 @@ contract AssetWorkflow
         {
             revert();
         }
-        Budget = adjustedBudget;
+        Budget = budget;
     }
 
     function ModifyDescription(string memory description) public
@@ -72,7 +72,7 @@ contract AssetWorkflow
         {
             revert();
         }
-        Contractor = inspectorAddress;
+        Inspector = inspectorAddress;
     }
 
     function CommitToWork() public
@@ -85,12 +85,12 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = StateType.Commitment;
+        State = StateType.Committed;
     }
 
     function FinishWork() public
     {
-        if (State != StateType.Active)
+        if (State != StateType.Committed)
         {
             revert();
         }

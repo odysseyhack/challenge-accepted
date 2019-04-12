@@ -1,0 +1,340 @@
+{
+    "ApplicationName": "AssetWorkflow",
+    "DisplayName": "Asset Workflow",
+    "Description": "A contract to create, send and earn tokens",
+    "ApplicationRoles": [
+      {
+        "Name": "PropertyOwner",
+        "Description": "An owner of a property."
+      },
+      {
+        "Name": "Inspector",
+        "Description": "A quality assurance officer."
+      },
+      {
+        "Name": "Contractor",
+        "Description": "A person who construct the building."
+      }
+    ],
+    "Workflows": [
+      {
+        "Name": "AssetWorkflow",
+        "DisplayName": "Asset Workflow",
+        "Description": "A extended workflow for BIM model.",
+        "Initiators": [ "PropertyOwner" ],
+        "StartState": "Active",
+        "Properties": [
+          {
+            "Name": "Description",
+            "DisplayName": "Description",
+            "Description": "Holds a short description.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "PropertyOwner",
+            "DisplayName": "Owner",
+            "Description": "Holds the name of the owner.",
+            "Type": {
+              "Name": "PropertyOwner"
+            }
+          },
+          {
+            "Name": "Inspector",
+            "DisplayName": "Inspector",
+            "Description": "Holds the name of the inspector.",
+            "Type": {
+              "Name": "Inspector"
+            }
+          },
+          {
+            "Name": "Contractor",
+            "DisplayName": "Contractor",
+            "Description": "Holds the name of the contractor.",
+            "Type": {
+              "Name": "Contractor"
+            }
+          },
+          {
+            "Name": "Budget",
+            "DisplayName": "Budget",
+            "Description": "Amount of tokens to be released.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "BimModelHash",
+            "DisplayName": "BIM model",
+            "Description": "Holds the hash of the BIM model.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "BimModelUrl",
+            "DisplayName": "BIM url",
+            "Description": "Holds the url of the BIM model.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "State",
+            "DisplayName": "State",
+            "Description": "Holds the state of the contract.",
+            "Type": {
+              "Name": "state"
+            }
+          }
+        ],
+        "Constructor": {
+          "Parameters": [
+            {
+              "Name": "bimModelHash",
+              "DisplayName": "BIM hash",
+              "Description": "Holds the hash of the BIM model.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "bimModelUrl",
+              "DisplayName": "BIM url",
+              "Description": "Holds the hash of the BIM model.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "description",
+              "DisplayName": "Description",
+              "Description": "Holds a short description.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "budget",
+              "DisplayName": "Budget",
+              "Description": "Amount of tokens to be released.",
+              "Type": {
+                "Name": "int"
+              }
+            }
+          ]
+        },
+        "Functions": [
+          {
+            "Name": "Cancel",
+            "DisplayName": "Cancel",
+            "Description": "Cancels the contract instance",
+            "Parameters": []
+          },
+          {
+            "Name": "ModifyBudget",
+            "DisplayName": "Modify Budget",
+            "Description": "Modifies the budget",
+            "Parameters": [
+              {
+                "Name": "budget",
+                "DisplayName": "Adjusted Budget",
+                "Description": "The adjusted budget",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "ModifyDescription",
+            "DisplayName": "Modify Description",
+            "Description": "Modifies the description",
+            "Parameters": [
+              {
+                "Name": "description",
+                "DisplayName": "Modified Description",
+                "Description": "The Modified description",
+                "Type": {
+                  "Name": "string"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "AddContractor",
+            "DisplayName": "Add Contractor",
+            "Description": "Adds a contractor to the contract",
+            "Parameters": [
+              {
+                "Name": "contractorAddress",
+                "DisplayName": "Contractor Address",
+                "Description": "The address of the contractor",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "AddInspector",
+            "DisplayName": "Add Inspector",
+            "Description": "Adds an inspector to the contract",
+            "Parameters": [
+              {
+                "Name": "inspectorAddress",
+                "DisplayName": "Inspector Address",
+                "Description": "The address of the inspector",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "CommitToWork",
+            "DisplayName": "Commit to Work",
+            "Description": "Commit to work",
+            "Parameters": []
+          },
+          {
+            "Name": "FinishWork",
+            "DisplayName": "Finish Work",
+            "Description": "Finish work",
+            "Parameters": []
+          },
+          {
+            "Name": "InspectWork",
+            "DisplayName": "Inspect Work",
+            "Description": "Inspect work",
+            "Parameters": [
+              {
+                "Name": "isWorkValid",
+                "DisplayName": "Valid",
+                "Description": "Valid",
+                "Type": {
+                  "Name": "bool"
+                }
+              }
+            ]
+          }
+        ],
+        "States": [
+          {
+            "Name": "Active",
+            "DisplayName": "Active",
+            "Description": "Contract is created with initial properties",
+            "PercentComplete": 25,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Cancelled" ],
+                "Function": "Cancel",
+                "DisplayName": "Cancel",
+                "Description": "Cancel"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "ModifyBudget",
+                "DisplayName": "ModifyBudget",
+                "Description": "ModifyBudget"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "AddContractor",
+                "DisplayName": "AddContractor",
+                "Description": "AddContractor"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "AddInspector",
+                "DisplayName": "AddInspector",
+                "Description": "AddInspector"
+              },
+              {
+                "AllowedRoles": [ "Contractor" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Committed" ],
+                "Function": "CommitToWork",
+                "DisplayName": "CommitToWork",
+                "Description": "CommitToWork"
+              }
+            ]
+          },
+          {
+            "Name": "Committed",
+            "DisplayName": "Committed",
+            "Description": "Contract is committed",
+            "PercentComplete": 50,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "Contractor" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "WorkFinished" ],
+                "Function": "FinishWork",
+                "DisplayName": "FinishWork",
+                "Description": "FinishWork"
+              }
+            ]
+          },
+          {
+            "Name": "WorkFinished",
+            "DisplayName": "WorkFinished",
+            "Description": "The work is finished",
+            "PercentComplete":75,
+            "Value": 1,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "Inspector" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ 
+                  "Approved",
+                  "Rejected"
+                ],
+                "Function": "InspectWork",
+                "DisplayName": "InspectWork",
+                "Description": "InspectWork"
+              }
+            ]
+          },
+          {
+            "Name": "Cancelled",
+            "DisplayName": "Cancelled",
+            "Description": "Cancelled",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          },
+          {
+            "Name": "Approved",
+            "DisplayName": "Approved",
+            "Description": "Approved",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          },
+          {
+            "Name": "Rejected",
+            "DisplayName": "Rejected",
+            "Description": "Rejected",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          }
+        ]
+      }
+    ]
+  }
