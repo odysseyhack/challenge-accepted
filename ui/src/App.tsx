@@ -143,7 +143,7 @@ class App extends Component<Props, State> {
                     </Grid.Column>
                     <Grid.Column width={7}>                      
                         <p>
-                        <Image size='small' src={logo} style={{ marginRight: '1.5em' }} />                        
+                                               
                         </p>
                     </Grid.Column>
                     </Grid>

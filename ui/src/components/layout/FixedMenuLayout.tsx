@@ -27,7 +27,7 @@ class FixedMenuLayout extends Component<any, any> {
                 <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item header>
-                    <Image size='tiny' src={logo} style={{ marginRight: '1.5em' }} />
+                    
                     Challenge Accepted
                     </Menu.Item>
                     <Link to="/"><Menu.Item className="inverted">Home</Menu.Item></Link>
