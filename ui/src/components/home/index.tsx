@@ -11,10 +11,12 @@ import {
     Menu,
     Segment,
   } from 'semantic-ui-react'
+import Contracts from '../contracts';
 
 function mapStateToProps(state: any) {
     return {
-
+        users: state.users,
+        contracts: state.contracts
     };
 }
 
@@ -23,19 +25,7 @@ class Home extends Component<any, any> {
         return (
             <div>                
                 <Container text style={{ marginTop: '7em' }}>
-                <Header as='h1'>Semantic UI React Fixed Template</Header>
-                <p>This is a basic fixed menu template using fixed size containers.</p>
-                <p>
-                    A text container is used for the main container, which is useful for single column layouts.
-                </p>
-
-                <Image src='/images/wireframe/media-paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
-                <Image src='/images/wireframe/paragraph.png' style={{ marginTop: '2em' }} />
+                    <Contracts {...this.props.contracts.contracts} />
                 </Container>                
             </div>
         );

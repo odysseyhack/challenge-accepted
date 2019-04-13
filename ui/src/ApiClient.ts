@@ -2,13 +2,13 @@ import { adalApiFetch } from './adalConfig.js';
 import { UserInput } from './types/User'
 import { ContractPayload } from './types/Contract.js';
 
-const apiUrl = (endpoint:string) => `https://abw3-ednabk-api.azurewebsites.net/api/v1/${endpoint}`;//applications;`
+const apiUrl = (endpoint:string, apiVersion = 'v1') => `https://abw3-ednabk-api.azurewebsites.net/api/${apiVersion}/${endpoint}`;//applications;`
 
 const apiUpload = `https://prod-16.westeurope.logic.azure.com/workflows/80c1cdc2b59845328a6f96d7688d3c6b/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TIs_hOdfqQ0vlj9vzIDMHnAEpZ-5-a47bYtNuToXnSA`
 const apiCreator = `https://prod-03.westeurope.logic.azure.com/workflows/ecd2b75dbfb14657bd5f1558844c1c93/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VW4Ipcmjif77nykP90GeW2PZj0UmHJTPmu3hqdVcK9Q`
 
-const callApi = (endpoint: string, options = {}) => {
-  var url = apiUrl(endpoint);
+const callApi = (endpoint: string, options = {}, apiVersion = 'v1') => {
+  var url = apiUrl(endpoint, apiVersion);
   console.group('calling ', url);
   return adalApiFetch(fetch, url, options)
     .then(response => {
@@ -28,11 +28,11 @@ const callApi = (endpoint: string, options = {}) => {
 
 const postApi = (endpoint: string, body: any) => callApi(endpoint, {
   method: 'POST',
-  body: body,
+  body: JSON.stringify(body),
   headers: {
     'Content-Type': 'application/json'
   }
-});
+}, 'v2');
 
 const uploadApi = (endpoint: string, name:string, body: any) => {
   let data = new FormData();

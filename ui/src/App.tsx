@@ -67,7 +67,7 @@ class App extends Component<Props, State> {
     super(props);
 
     //this.props.getUsersMe();
-    //this.props.getAllUsers();
+    this.props.getAllUsers();
     this.props.getAllContracts();
   }
 

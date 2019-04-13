@@ -7,8 +7,6 @@ interface Props {
   contracts: Array<Contract>,
 }
 
-enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected }
-
 class Contracts extends React.Component<Props, any> {
   render() {
     return (
@@ -17,9 +15,11 @@ class Contracts extends React.Component<Props, any> {
           <Table.Row>
             <Table.HeaderCell singleLine>Timestamp</Table.HeaderCell>
             <Table.HeaderCell>User</Table.HeaderCell>
-            <Table.HeaderCell>Efficacy</Table.HeaderCell>
-            <Table.HeaderCell>Consensus</Table.HeaderCell>
-            <Table.HeaderCell>Comments</Table.HeaderCell>
+            <Table.HeaderCell>Description</Table.HeaderCell>
+            <Table.HeaderCell>Amount</Table.HeaderCell>
+            <Table.HeaderCell>Hash</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+            <Table.HeaderCell>Action</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
