@@ -5,7 +5,7 @@ import "./SharedModels.sol";
 contract Property
 {
     address public PropertyOwner;
-    string public CurrentBimModelUrl;
+    string public  CurrentBimModelUrl;
     string public CurrentBimModelHash;
     string public Address;    
     mapping(uint => address ) public AssetWorkFlows;
@@ -15,7 +15,7 @@ contract Property
         Address = propertyAddress;
     }
     
-    function InitializeBimModel(string memory bimModelUrl, string memory bimModelHash) public
+    function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
     {
         if( msg.sender != PropertyOwner|| StringHelper.IsStringEmpty(bimModelUrl) || StringHelper.IsStringEmpty(bimModelHash))
         {
