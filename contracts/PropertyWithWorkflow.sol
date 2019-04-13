@@ -5,16 +5,27 @@ import "./SharedModels.sol";
 contract Property
 {
     address public PropertyOwner;
-    string public  CurrentBimModelUrl;
+    string public CurrentBimModelUrl;
     string public CurrentBimModelHash;
     string public Address;    
-    mapping(uint => address ) public AssetWorkFlowList;
+    SharedModels.PropertyState public State;
+    mapping(uint256 => address ) public AssetWorkflows;
 
     constructor(string memory propertyAddress) public
     {
         Address = propertyAddress;
     }
     
+    function CreateAssetWorkFlow(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, 
+    string memory description, uint256 budget) public
+    {
+        //workbench doesnt support solidity v5 as below
+        address assetWorkflowAddress = address(new AssetWorkflow(propertyOwner, bimModelHash, bimModelUrl, description, budget));
+        //version 4.x below
+        //address assetWorkflowAddress = new AssetWorkflow(propertyOwner, bimModelHash, bimModelUrl, description, budget);
+        AssetWorkflows[now] = assetWorkflowAddress;
+    }
+
     function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
     {
         if( msg.sender != PropertyOwner|| StringHelper.IsStringEmpty(bimModelUrl) || StringHelper.IsStringEmpty(bimModelHash))
@@ -24,7 +35,8 @@ contract Property
         CurrentBimModelUrl = bimModelUrl;
         CurrentBimModelHash = bimModelHash;
     }
-    function StoreAssetWorkflow(address inspectorAddress) public
+
+    function UpdateCurrentBimModel(address inspectorAddress) public
     {
         AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
         if(!assetWorkflow.ValidateInspection(inspectorAddress))
@@ -33,7 +45,6 @@ contract Property
         }
         CurrentBimModelUrl = assetWorkflow.BimModelUrl();
         CurrentBimModelHash = assetWorkflow.BimModelHash();
-        AssetWorkFlowList[assetWorkflow.CompletionTime()] = msg.sender;
     }
 }
 
@@ -52,10 +63,10 @@ contract AssetWorkflow
     uint public Budget;
     uint256 public CompletionTime;
     
-    constructor(address property, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
+    constructor(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
     {
-        _property = property;
-        _propertyOwner = msg.sender;
+        _property = msg.sender;
+        _propertyOwner = propertyOwner;
         BimModelHash = bimModelHash;
         BimModelUrl = bimModelUrl;
         Description = description;
@@ -164,7 +175,7 @@ contract AssetWorkflow
             CompletionTime = now;
             State = SharedModels.AssetWorkflowState.Approved;
             Property property = Property(_property);
-            property.StoreAssetWorkflow(msg.sender);
+            property.UpdateCurrentBimModel(msg.sender);
         }
         else
         {

@@ -8,12 +8,14 @@ contract Property
     address public PropertyOwner;
     string public  CurrentBimModelUrl;
     string public CurrentBimModelHash;
-    string public Address;    
+    string public Address;   
+    SharedModels.PropertyState public State;
     mapping(uint => address ) public AssetWorkFlowList;
 
     constructor(string memory propertyAddress) public
     {
         Address = propertyAddress;
+        State = SharedModels.PropertyState.Active;
     }
     
     function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
