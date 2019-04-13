@@ -1,14 +1,15 @@
 pragma solidity ^0.5.6;
 import "./StringHelper.sol";
-import "./Assetworkflow.sol";
 import "./SharedModels.sol";
+import "./AssetWorkflow.sol";
+
 contract Property
 {
     address public PropertyOwner;
     string public  CurrentBimModelUrl;
     string public CurrentBimModelHash;
     string public Address;    
-    mapping(uint => address ) public AssetWorkFlows;
+    mapping(uint => address ) public AssetWorkFlowList;
 
     constructor(string memory propertyAddress) public
     {
@@ -24,19 +25,11 @@ contract Property
         CurrentBimModelUrl = bimModelUrl;
         CurrentBimModelHash = bimModelHash;
     }
-    function StoreAssetWorkflow(address validatorAddress) public
+    function StoreAssetWorkflow() public
     {
-         AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
-        if(assetWorkflow.State() != SharedModels.AssetWorkflowState.Approved)
-        {
-            revert();
-        }
-        if(!assetWorkflow.ValidateInspector(validatorAddress))
-        {
-            revert();
-        }
+        AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
         CurrentBimModelUrl = assetWorkflow.BimModelUrl();
         CurrentBimModelHash = assetWorkflow.BimModelHash();
-        AssetWorkFlows[assetWorkflow.CompletionTime()] = msg.sender;
+        AssetWorkFlowList[assetWorkflow.CompletionTime()] = msg.sender;
     }
 }

@@ -1,5 +1,41 @@
 pragma solidity ^0.5.6;
+import "./StringHelper.sol";
 import "./SharedModels.sol";
+
+contract Property
+{
+    address public PropertyOwner;
+    string public  CurrentBimModelUrl;
+    string public CurrentBimModelHash;
+    string public Address;    
+    mapping(uint => address ) public AssetWorkFlowList;
+
+    constructor(string memory propertyAddress) public
+    {
+        Address = propertyAddress;
+    }
+    
+    function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
+    {
+        if( msg.sender != PropertyOwner|| StringHelper.IsStringEmpty(bimModelUrl) || StringHelper.IsStringEmpty(bimModelHash))
+        {
+            revert();
+        }
+        CurrentBimModelUrl = bimModelUrl;
+        CurrentBimModelHash = bimModelHash;
+    }
+    function StoreAssetWorkflow(address inspectorAddress) public
+    {
+        AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
+        if(!assetWorkflow.ValidateInspection(inspectorAddress))
+        {
+            revert();
+        }
+        CurrentBimModelUrl = assetWorkflow.BimModelUrl();
+        CurrentBimModelHash = assetWorkflow.BimModelHash();
+        AssetWorkFlowList[assetWorkflow.CompletionTime()] = msg.sender;
+    }
+}
 
 contract AssetWorkflow
 {
@@ -127,6 +163,8 @@ contract AssetWorkflow
         {
             CompletionTime = now;
             State = SharedModels.AssetWorkflowState.Approved;
+            Property property = Property(_property);
+            property.StoreAssetWorkflow(msg.sender);
         }
         else
         {
