@@ -1,40 +1,47 @@
 pragma solidity ^0.5.6;
+import "./SharedModels.sol";
 
 contract AssetWorkflow
 {
-    enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected  }
+    //enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected  }
+    //ContractProperties
     address public PropertyOwner;
     address public Inspector;
     address public Contractor;
+    address public Property;
+    SharedModels.StateType public State;
+    //AssetProperties
     string public BimModelHash;
     string public BimModelUrl;
-    
-    StateType public State;
     string public Description;
-    uint256 public Budget;
-
-    constructor(string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
+    uint public Budget;
+    uint256 public CompletionTime;
+    
+    constructor(address property, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
     {
+        // Asset = SharedModels.Asset({BimModelHash:bimModelHash, BimModelUrl:bimModelUrl,Description:description,
+        // Budget:budget, CompletionTime:0});
+        Property = property;
         BimModelHash = bimModelHash;
         BimModelUrl = bimModelUrl;
-        PropertyOwner = msg.sender;
-        Budget = budget;
         Description = description;
-        State = StateType.Active;
+        Budget = budget;
+        PropertyOwner = msg.sender;
+        State = SharedModels.StateType.Active;
     }
-
+    
     function Cancel() public
     {
-        if (PropertyOwner != msg.sender || State != StateType.Active)
+        if (PropertyOwner != msg.sender || State != SharedModels.StateType.Active)
         {
             revert();
         }
-        State = StateType.Cancelled;
+        State = SharedModels.StateType.Cancelled;
     }
 
     function ModifyBudget(uint256 budget) public
     {
-        if (State != StateType.Active)
+        if (State != SharedModels.StateType.Active)
         {
             revert();
         }
@@ -47,7 +54,7 @@ contract AssetWorkflow
 
     function ModifyDescription(string memory description) public
     {
-        if (State != StateType.Active)
+        if (State != SharedModels.StateType.Active)
         {
             revert();
         }
@@ -60,7 +67,7 @@ contract AssetWorkflow
 
     function AddContractor(address contractorAddress) public
     {
-        if (State != StateType.Active || PropertyOwner != msg.sender)
+        if (State != SharedModels.StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
@@ -68,7 +75,7 @@ contract AssetWorkflow
     }
     function AddInspector(address inspectorAddress) public
     {
-        if (State != StateType.Active || PropertyOwner != msg.sender)
+        if (State != SharedModels.StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
@@ -77,7 +84,7 @@ contract AssetWorkflow
 
     function CommitToWork() public
     {
-        if (State != StateType.Active)
+        if (State != SharedModels.StateType.Active)
         {
             revert();
         }
@@ -85,12 +92,12 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = StateType.Committed;
+        State = SharedModels.StateType.Committed;
     }
 
     function FinishWork() public
     {
-        if (State != StateType.Committed)
+        if (State != SharedModels.StateType.Committed)
         {
             revert();
         }
@@ -98,22 +105,31 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = StateType.WorkFinished;
+        State = SharedModels.StateType.WorkFinished;
     }
 
     function InspectWork(bool isWorkValid) public
     {
-        if (State != StateType.WorkFinished || Inspector != msg.sender)
+        if (State != SharedModels.StateType.WorkFinished || Inspector != msg.sender)
         {
             revert();
         }
         if(isWorkValid)
         {
-            State = StateType.Approved;
+            CompletionTime = now;
+            State = SharedModels.StateType.Approved;
         }
         else
         {
-            State = StateType.Rejected;
+            State = SharedModels.StateType.Rejected;
         }
+    }
+    function CompleteWorkflow() public
+    {
+        if(msg.sender != PropertyOwner || State != SharedModels.StateType.Approved)
+        {
+            revert();
+        }
+        State = SharedModels.StateType.Completed;
     }
 }
