@@ -26,7 +26,11 @@ class ContractLine extends Component<any, any> {
         return (
             <Table.Row>
                 <Table.Cell>
-                    {this.props.timestamp}
+                {new Intl.DateTimeFormat('en-GB', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: '2-digit' 
+                }).format(Date.parse(this.props.timestamp))}
                 </Table.Cell>
                 <Table.Cell singleLine>{
                     this.state && this.state.user ?

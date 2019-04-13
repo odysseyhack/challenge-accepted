@@ -6,6 +6,9 @@ import { ContractsReturnType, Contract } from '../../types/Contract';
 interface Props {
   contracts: Array<Contract>,
 }
+
+enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected }
+
 class Contracts extends React.Component<Props, any> {
   render() {
     return (
