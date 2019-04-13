@@ -24,19 +24,19 @@ contract Property
         CurrentBimModelUrl = bimModelUrl;
         CurrentBimModelHash = bimModelHash;
     }
-    function StoreAssetWorkflow(address assetWorkflowAddress) public
+    function StoreAssetWorkflow(address validatorAddress) public
     {
-        if(msg.sender != PropertyOwner)
+         AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
+        if(assetWorkflow.State() != SharedModels.AssetWorkflowState.Approved)
         {
             revert();
         }
-        AssetWorkflow assetWorkflow = AssetWorkflow(assetWorkflowAddress);
-        if(assetWorkflow.State != SharedModels.StateType.Approved)
+        if(!assetWorkflow.ValidateInspector(validatorAddress))
         {
             revert();
         }
-        CurrentBimModelUrl = assetWorkflow.BimModelUrl;
-        CurrentBimModelHash = assetWorkflow.BimModelHash;
-        AssetWorkFlows[assetWorkflow.CompletionTime] = assetWorkflowAddress;
+        CurrentBimModelUrl = assetWorkflow.BimModelUrl();
+        CurrentBimModelHash = assetWorkflow.BimModelHash();
+        AssetWorkFlows[assetWorkflow.CompletionTime()] = msg.sender;
     }
 }
