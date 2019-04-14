@@ -1,0 +1,138 @@
+{
+    "$connections": {
+        "value": {
+            "azuretables": {
+                "connectionId": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/resourceGroups/Odyssey-Integrations/providers/Microsoft.Web/connections/azuretables-1",
+                "connectionName": "azuretables-1",
+                "id": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/providers/Microsoft.Web/locations/westeurope/managedApis/azuretables"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Get_entity": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuretables']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/Tables/@{encodeURIComponent('FileHash')}/entities(PartitionKey='@{encodeURIComponent('bim-model')}',RowKey='@{encodeURIComponent(triggerBody()?['fileHash'])}')"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "If_hash_exists": {
+                "actions": {
+                    "Create_contract": {
+                        "inputs": {
+                            "authentication": {
+                                "type": "Raw",
+                                "value": "@{concat('Bearer ', triggerBody()['token'])}"
+                            },
+                            "body": {
+                                "workflowActionParameters": [
+                                    {
+                                        "name": "bimModelHash",
+                                        "value": "@{triggerBody()?['fileHash']}"
+                                    },
+                                    {
+                                        "name": "bimModelUrl",
+                                        "value": "@{triggerBody()?['fileName']}"
+                                    },
+                                    {
+                                        "name": "description",
+                                        "value": "@{triggerBody()?['description']}"
+                                    },
+                                    {
+                                        "name": "budget",
+                                        "value": "@{triggerBody()?['budget']}"
+                                    },
+                                    {
+                                        "name": "tokenAddress",
+                                        "value": "0xedfc7a1f3feebb638ffc7e66a796f12b263b76e4"
+                                    }
+                                ],
+                                "workflowFunctionId": 28
+                            },
+                            "method": "POST",
+                            "uri": "https://abw3-ednabk-api.azurewebsites.net/api/v2/contracts?workflowId=4&contractCodeId=4&connectionId=1"
+                        },
+                        "runAfter": {},
+                        "type": "Http"
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@actionOutputs('Get_entity')['statusCode']",
+                                200
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Get_entity": [
+                        "Succeeded",
+                        "Failed"
+                    ]
+                },
+                "type": "If"
+            },
+            "Response": {
+                "inputs": {
+                    "body": {
+                        "contract": "@{coalesce(body('Create_contract'), 'N/A')}"
+                    },
+                    "statusCode": "@coalesce(actionOutputs('Create_contract')?['statusCode'], 400)"
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "If_hash_exists": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "budget": {
+                                "type": "integer"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "fileHash": {
+                                "type": "string"
+                            },
+                            "fileName": {
+                                "type": "string"
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    }
+}

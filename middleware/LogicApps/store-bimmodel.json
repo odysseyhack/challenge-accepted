@@ -1,0 +1,133 @@
+{
+    "$connections": {
+        "value": {
+            "azurefile": {
+                "connectionId": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/resourceGroups/Odyssey-Integrations/providers/Microsoft.Web/connections/azurefile",
+                "connectionName": "azurefile",
+                "id": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/providers/Microsoft.Web/locations/westeurope/managedApis/azurefile"
+            },
+            "azuretables": {
+                "connectionId": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/resourceGroups/Odyssey-Integrations/providers/Microsoft.Web/connections/azuretables-1",
+                "connectionName": "azuretables-1",
+                "id": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/providers/Microsoft.Web/locations/westeurope/managedApis/azuretables"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Create_bim_file": {
+                "inputs": {
+                    "body": "@triggerBody()",
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azurefile']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                        "folderPath": "/bim-models",
+                        "name": "@variables('fileName')",
+                        "queryParametersSingleEncoded": true
+                    }
+                },
+                "runAfter": {
+                    "Initialize_fileName": [
+                        "Succeeded"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "ApiConnection"
+            },
+            "Hash": {
+                "inputs": {
+                    "body": "@triggerBody()",
+                    "function": {
+                        "id": "/subscriptions/ea3c5aff-c75b-4966-b94e-67e3c15a77e6/resourceGroups/Odyssey-Integrations/providers/Microsoft.Web/sites/hackathon-odyssey/functions/Hash"
+                    },
+                    "retryPolicy": {
+                        "type": "none"
+                    }
+                },
+                "runAfter": {
+                    "Create_bim_file": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "Initialize_fileName": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "fileName",
+                            "type": "String",
+                            "value": "@{concat(guid(), '.ifc')}"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Insert_hash": {
+                "inputs": {
+                    "body": {
+                        "fileLocation": "@{concat('https://stassetdata.file.core.windows.net', body('Create_bim_file')['path'])}",
+                        "fileName": "@{variables('fileName')}"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuretables']['connectionId']"
+                        }
+                    },
+                    "method": "put",
+                    "path": "/Tables/@{encodeURIComponent('FileHash')}/entities(PartitionKey='@{encodeURIComponent('bim-model')}',RowKey='@{encodeURIComponent(actionBody('Hash'))}')"
+                },
+                "runAfter": {
+                    "Hash": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Response": {
+                "inputs": {
+                    "body": {
+                        "fileName": "@{variables('fileName')}",
+                        "fileHash": "@{body('Hash')}"
+                    },
+                    "statusCode": 201
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "Insert_hash": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {}
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    }
+}
