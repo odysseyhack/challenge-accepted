@@ -1,6 +1,6 @@
 pragma solidity ^0.5.6;
 
-contract StringHelper
+library StringHelper
 {
     function IsStringEmpty(string memory s) public pure returns (bool)
     {

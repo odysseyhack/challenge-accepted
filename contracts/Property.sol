@@ -1,30 +1,37 @@
 pragma solidity ^0.5.6;
 import "./StringHelper.sol";
+import "./SharedModels.sol";
+import "./AssetWorkflow.sol";
+
 contract Property
 {
     address public PropertyOwner;
-    string public BimModelHash;
-    string public BimModelUrl;
-    string public Address;    
-    StringHelper public sh;
-    mapping(uint => address )  public AssetWorkFlows;
+    string public  CurrentBimModelUrl;
+    string public CurrentBimModelHash;
+    string public Address;   
+    SharedModels.PropertyState public State;
+    mapping(uint => address ) public AssetWorkFlowList;
 
     constructor(string memory propertyAddress) public
     {
         Address = propertyAddress;
+        State = SharedModels.PropertyState.Active;
     }
     
-    function InitializeBimModel(string memory bimModelUrl, string memory bimModelHash) public
+    function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
     {
-        if( msg.sender != PropertyOwner|| sh.IsStringEmpty(bimModelUrl) || sh.IsStringEmpty(bimModelHash))
+        if( msg.sender != PropertyOwner|| StringHelper.IsStringEmpty(bimModelUrl) || StringHelper.IsStringEmpty(bimModelHash))
         {
             revert();
         }
-        BimModelUrl = bimModelUrl;
-        BimModelHash = bimModelHash;
+        CurrentBimModelUrl = bimModelUrl;
+        CurrentBimModelHash = bimModelHash;
     }
-    function SetBimModel(address assetWorkflow, uint epochTimeStamp, string memory bimModelHash, string memory bimModelUrl) public
+    function StoreAssetWorkflow() public
     {
-        
+        AssetWorkflow assetWorkflow = AssetWorkflow(msg.sender);
+        CurrentBimModelUrl = assetWorkflow.BimModelUrl();
+        CurrentBimModelHash = assetWorkflow.BimModelHash();
+        AssetWorkFlowList[assetWorkflow.CompletionTime()] = msg.sender;
     }
 }

@@ -59,3 +59,10 @@ export interface Contract {
     transactions: Array<Transaction>,
     contractActions: Array<ContractAction>
 }
+
+export interface ContractPayload {
+    fileName: string,
+    budget: number,
+    description: string,
+    token: string
+}
