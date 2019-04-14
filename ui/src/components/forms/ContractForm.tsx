@@ -33,14 +33,21 @@ class ContractForm extends Component<any, any> {
     createContract = () => {
         let token = getAuthToken();
         console.log('Going to create a new one', token, authContext);
-        uploadFile(this.state.fileName, this.state.sFile).then((result)=>{
-            console.log('FILE UPLOADED', this.state.fileName, result);
-            createContract({
-                fileName: this.state.fileName,
-                budget: 69,
-                description: 'Saskia is lief',
-                token: token
-            });
+        uploadFile(this.state.fileName, this.state.sFile).then((result: any)=>{
+            result.json().then((body) => {
+                console.log('BODY', body);
+                if (result.status === 201) {
+                    console.log('FILE UPLOADED', this.state.fileName, body);
+
+                    createContract({
+                        fileName: body.fileName,
+                        fileHash: body.fileHash,
+                        budget: 69,
+                        description: 'Challenge Accepted',
+                        token: token
+                    });
+                }
+            });            
         })
     }
     render() {
