@@ -1,0 +1,6 @@
+exclude:
+- /DirectoryYouWantToExclude/.*
+- .*/FileYouWantToExclude\.java
+- .*/serviceworker\.ts
+- .*/onstatechange
+- .*/serviceworker\.ts\.checkValidServiceWorker
