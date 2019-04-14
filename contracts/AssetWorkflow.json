@@ -14,6 +14,14 @@
       {
         "Name": "Contractor",
         "Description": "A person who construct the building."
+      },
+      {
+        "Name": "Administrator",
+        "Description": "An administrator of a token."
+      },
+      {
+        "Name": "User",
+        "Description": "A person using the tokens"
       }
     ],
     "Workflows": [
@@ -121,6 +129,14 @@
               "Description": "Amount of tokens to be released.",
               "Type": {
                 "Name": "int"
+              }
+            },
+            {
+              "Name": "tokenAddress",
+              "DisplayName": "Token Address",
+              "Description": "Address of the token contract.",
+              "Type": {
+                "Name": "contract"
               }
             }
           ]
@@ -330,6 +346,221 @@
             "Name": "Rejected",
             "DisplayName": "Rejected",
             "Description": "Rejected",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          }
+        ]
+      },
+      {
+        "Name": "ERC20",
+        "DisplayName": "Created Transfer",
+        "Description": "A extended workflow to create a token and transfer value.",
+        "Initiators": [ "Administrator" ],
+        "StartState": "Initialized",
+        "Properties": [
+          {
+            "Name": "TokenName",
+            "DisplayName": "Name",
+            "Description": "Holds the name of the token.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "TokenSymbol",
+            "DisplayName": "Symbol",
+            "Description": "Holds the symbol of the token.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "TotalSupply",
+            "DisplayName": "Total",
+            "Description": "A total amount of tokens created.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "CirculatingSupply",
+            "DisplayName": "Circulating",
+            "Description": "A circulating amount of tokens created.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "State",
+            "DisplayName": "State",
+            "Description": "Holds the state of the contract.",
+            "Type": {
+              "Name": "state"
+            }
+          },
+          {
+            "Name": "Administrator",
+            "DisplayName": "Administrator",
+            "Description": "A person creating the token.",
+            "Type": {
+              "Name": "Administrator"
+            }
+          }
+        ],
+        "Constructor": {
+          "Parameters": [
+            {
+              "Name": "supply",
+              "DisplayName": "Total supply",
+              "Description": "A total amount of tokens created.",
+              "Type": {
+                "Name": "int"
+              }
+            },
+            {
+              "Name": "token",
+              "DisplayName": "Token name",
+              "Description": "Holds the name of the token.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "symbol",
+              "DisplayName": "Token symbol",
+              "Description": "Holds the symbol of the token.",
+              "Type": {
+                "Name": "string"
+              }
+            }
+          ]
+        },
+        "Functions": [
+          {
+            "Name": "Transfer",
+            "DisplayName": "Transfer tokens",
+            "Description": "Sends an amount of tokens from your account",
+            "Parameters": [
+              {
+                "Name": "to",
+                "DisplayName": "Address",
+                "Description": "The address of the recipient",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "value",
+                "DisplayName": "Amount",
+                "Description": "The amount to send",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "TransferFrom",
+            "DisplayName": "Transfer tokens from another wallet",
+            "Description": "Sends an amount of tokens from an account",
+            "Parameters": [
+              {
+                "Name": "from",
+                "DisplayName": "Address",
+                "Description": "The address of the sender",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "to",
+                "DisplayName": "Address",
+                "Description": "The address of the recipient",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "value",
+                "DisplayName": "Amount",
+                "Description": "The amount to send",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "Terminate",
+            "DisplayName": "Terminate contract",
+            "Description": "Terminates the contract",
+            "Parameters": []
+          }
+        ],
+        "States": [
+          {
+            "Name": "Initialized",
+            "DisplayName": "Initialized",
+            "Description": "Contract is initialized and ready for use",
+            "PercentComplete": 33,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [
+                  "Administrator", 
+                  "User" 
+                ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Operational" ],
+                "Function": "Transfer",
+                "DisplayName": "Transfer Tokens",
+                "Description": "Sends an amount of tokens from your account"
+              },
+              {
+                "AllowedRoles": [],
+                "AllowedInstanceRoles": [ "Administrator" ],
+                "NextStates": [ "Terminated" ],
+                "Function": "Terminate",
+                "DisplayName": "Terminate Contract",
+                "Description": "Terminates the contract"
+              }
+            ]
+          },
+          {
+            "Name": "Operational",
+            "DisplayName": "Operational",
+            "Description": "Contract is operational and users can initiate actions",
+            "PercentComplete":66,
+            "Value": 1,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [
+                  "Administrator", 
+                  "User" 
+                ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Operational" ],
+                "Function": "Transfer",
+                "DisplayName": "Transfer Tokens",
+                "Description": "Sends an amount of tokens from your account"
+              },
+              {
+                "AllowedRoles": [],
+                "AllowedInstanceRoles": [ "Administrator" ],
+                "NextStates": [ "Terminated" ],
+                "Function": "Terminate",
+                "DisplayName": "Terminate Contract",
+                "Description": "Terminates the contract"
+              }
+            ]
+          },
+          {
+            "Name": "Terminated",
+            "DisplayName": "Terminated",
+            "Description": "...",
             "PercentComplete": 100,
             "Style": "Success",
             "Transitions": []

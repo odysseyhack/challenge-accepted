@@ -1,144 +1,126 @@
-pragma solidity ^0.5.6;
-import "./SharedModels.sol";
+pragma solidity ^0.4.25;
+
+import "./ERC20.sol";
 
 contract AssetWorkflow
 {
-    //ContractProperties
-    address private _propertyOwner;
-    address private _inspector;
-    address private _contractor;
-    address private _property;
-    SharedModels.AssetWorkflowState public State;
-    //AssetProperties
+    enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected  }
+    address public PropertyOwner;
+    address public Inspector;
+    address public Contractor;
     string public BimModelHash;
     string public BimModelUrl;
     string public Description;
-    uint public Budget;
-    uint256 public CompletionTime;
-    
-    constructor(address property, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
+    uint256 public Budget;
+    StateType public State;
+
+    address public TokenAddress;
+
+    constructor(string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget, address tokenAddress) public
     {
-        _property = property;
-        _propertyOwner = msg.sender;
         BimModelHash = bimModelHash;
         BimModelUrl = bimModelUrl;
-        Description = description;
+        PropertyOwner = msg.sender;
         Budget = budget;
-        State = SharedModels.AssetWorkflowState.Active;
-    }
-    
-    function Cancel() external
-    {
-        if (_propertyOwner != msg.sender || State != SharedModels.AssetWorkflowState.Active)
-        {
-            revert();
-        }
-        State = SharedModels.AssetWorkflowState.Cancelled;
+        Description = description;
+        TokenAddress = tokenAddress;
+        State = StateType.Active;
     }
 
-    function ModifyBudget(uint256 budget) external
+    function Cancel() public
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (PropertyOwner != msg.sender || State != StateType.Active)
         {
             revert();
         }
-        if (_propertyOwner != msg.sender)
+        State = StateType.Cancelled;
+    }
+
+    function ModifyBudget(uint256 budget) public
+    {
+        if (State != StateType.Active)
+        {
+            revert();
+        }
+        if (PropertyOwner != msg.sender)
         {
             revert();
         }
         Budget = budget;
     }
 
-    function ModifyDescription(string calldata description) external
+    function ModifyDescription(string memory description) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (State != StateType.Active)
         {
             revert();
         }
-        if (_propertyOwner != msg.sender)
+        if (PropertyOwner != msg.sender)
         {
             revert();
         }
         Description = description;
     }
 
-    function AddContractor(address contractorAddress) external
+    function AddContractor(address contractorAddress) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
-        _contractor = contractorAddress;
+        Contractor = contractorAddress;
     }
-    
-    function AddInspector(address inspectorAddress) external
+    function AddInspector(address inspectorAddress) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
-        _inspector = inspectorAddress;
-    }
-    function ValidateInspection(address inspectorAddress) external view returns(bool)
-    {
-        if (_inspector == inspectorAddress && State == SharedModels.AssetWorkflowState.Approved)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        Inspector = inspectorAddress;
     }
 
-    function CommitToWork() external
+    function CommitToWork() public
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (State != StateType.Active)
         {
             revert();
         }
-        if (_contractor != msg.sender)
+        if (Contractor != msg.sender)
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.Committed;
+        State = StateType.Committed;
     }
 
-    function FinishWork() external
+    function FinishWork() public
     {
-        if (State != SharedModels.AssetWorkflowState.Committed)
+        if (State != StateType.Committed)
         {
             revert();
         }
-        if (_contractor != msg.sender)
+        if (Contractor != msg.sender)
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.WorkFinished;
+        State = StateType.WorkFinished;
     }
 
-    function InspectWork(bool isWorkValid) external
+    function InspectWork(bool isWorkValid) public
     {
-        if (State != SharedModels.AssetWorkflowState.WorkFinished || _inspector != msg.sender)
+        if (State != StateType.WorkFinished || Inspector != msg.sender)
         {
             revert();
         }
         if(isWorkValid)
         {
-            CompletionTime = now;
-            State = SharedModels.AssetWorkflowState.Approved;
+            ERC20 erc20 = ERC20(TokenAddress);
+            erc20.TransferFrom(PropertyOwner, Contractor, Budget);
+            
+            State = StateType.Approved;
         }
         else
         {
-            State = SharedModels.AssetWorkflowState.Rejected;
+            State = StateType.Rejected;
         }
-    }
-    function CompleteWorkflow() external
-    {
-        if(msg.sender != _property || State != SharedModels.AssetWorkflowState.Approved)
-        {
-            revert();
-        }
-        State = SharedModels.AssetWorkflowState.Completed;
     }
 }
