@@ -62,6 +62,7 @@ export interface Contract {
 
 export interface ContractPayload {
     fileName: string,
+    fileHash: string,
     budget: number,
     description: string,
     token: string

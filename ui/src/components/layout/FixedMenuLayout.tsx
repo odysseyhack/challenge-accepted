@@ -31,24 +31,7 @@ class FixedMenuLayout extends Component<any, any> {
                     Challenge Accepted
                     </Menu.Item>
                     <Link to="/"><Menu.Item className="inverted">Home</Menu.Item></Link>
-
-                    <Dropdown item simple text='Actions'>
-                    <Dropdown.Menu>
-                    <Dropdown.Item><Link to="/create">Create contract</Link></Dropdown.Item>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Header>Header Item</Dropdown.Header>
-                        <Dropdown.Item>
-                        <i className='dropdown icon' />
-                        <span className='text'>Submenu</span>
-                        <Dropdown.Menu>
-                            <Dropdown.Item>List Item</Dropdown.Item>
-                            <Dropdown.Item>List Item</Dropdown.Item>
-                        </Dropdown.Menu>
-                        </Dropdown.Item>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                    </Dropdown.Menu>
-                    </Dropdown>
+                    <Link to="/create"><Menu.Item className="inverted">Create contract</Menu.Item></Link>
                 </Container>
                 </Menu>
             </div>

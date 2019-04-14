@@ -24,7 +24,7 @@ class Home extends Component<any, any> {
     render() {
         return (
             <div>                
-                <Container text style={{ marginTop: '7em' }}>
+                <Container text style={{ marginTop: '3em' }}>
                     <Contracts {...this.props.contracts.contracts} />
                 </Container>                
             </div>

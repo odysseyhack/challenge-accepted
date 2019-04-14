@@ -30,7 +30,8 @@ const postApi = (endpoint: string, body: any) => callApi(endpoint, {
   method: 'POST',
   body: JSON.stringify(body),
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 }, 'v2');
 
@@ -40,7 +41,7 @@ const uploadApi = (endpoint: string, name:string, body: any) => {
   data.append('name', name);
   return fetch(endpoint, {
     method: 'post',
-    headers: {'Content-Type':'multipart/form-data'},
+    headers: {'Content-Type':'multipart/form-data', 'Accept': 'application/json'},
     body: data
    })
    .catch((err) => {
@@ -53,7 +54,7 @@ const createContractApi = (endpoint: string, payload: any) => {
   data.append( "json", JSON.stringify( payload ) );
   return fetch(endpoint, {
     method: 'post',
-    headers: {'Content-Type':'application/json'},
+    headers: {'Content-Type':'application/json', 'Accept': 'application/json'},
     body: JSON.stringify( payload )
    })
    .catch((err) => {
