@@ -1,9 +1,0 @@
-languages:
-- javascript
-- typescript
-- solidity
-exclude:
-- .*/src/serviceworker\.ts
-- .*/serviceworker\.ts
-- .*/onstatechange
-- .*/serviceworker\.ts\.checkValidServiceWorker

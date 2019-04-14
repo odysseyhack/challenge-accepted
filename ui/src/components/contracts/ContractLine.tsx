@@ -33,8 +33,9 @@ class ContractLine extends Component<any, any> {
         console.log('Doing action', this.state.option);
 
         switch (this.state.option.value) {
+            case 'CommitToWork':
+            case 'FinishWork':
             case 'Cancel': {
-                console.log('CANCELLING', this.props);
                 postAction(this.props.id, this.state.option.key, [])
                 break;
             }
@@ -42,6 +43,8 @@ class ContractLine extends Component<any, any> {
 
             }
         }
+        console.log('closing');
+        this.close();
     }
 
     getUser = (userId: number) => {
@@ -146,7 +149,6 @@ class ContractLine extends Component<any, any> {
                                                         />
                                                     )
                                                 } else {
-
                                                     return (
                                                         <Form.Field key={`${param.type.name}-${i}`}>
                                                             <label>{param.type.name} {param.displayName}</label>
