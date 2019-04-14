@@ -1,6 +1,9 @@
+languages:
+- javascript
+- typescript
+- solidity
 exclude:
-- /DirectoryYouWantToExclude/.*
-- .*/FileYouWantToExclude\.java
+- .*/src/serviceworker\.ts
 - .*/serviceworker\.ts
 - .*/onstatechange
 - .*/serviceworker\.ts\.checkValidServiceWorker
