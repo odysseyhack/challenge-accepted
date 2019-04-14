@@ -1,14 +1,17 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.4.25;
+
 import "./StringHelper.sol";
-import "./SharedModels.sol";
+import "./ERC20.sol";
 
 contract Property
 {
+    enum PropertyState { Active, Disabled }
     address public PropertyOwner;
     string public CurrentBimModelUrl;
     string public CurrentBimModelHash;
     string public Address;    
-    SharedModels.PropertyState public State;
+    PropertyState public State;
+
     mapping(uint256 => address ) public AssetWorkflows;
 
     constructor(string memory propertyAddress) public
@@ -16,17 +19,16 @@ contract Property
         Address = propertyAddress;
     }
     
-    function CreateAssetWorkFlow(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, 
-    string memory description, uint256 budget) public
+    function CreateAssetWorkFlow(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget, address tokenAddress) public
     {
         //workbench doesnt support solidity v5 as below
-        address assetWorkflowAddress = address(new AssetWorkflow(propertyOwner, bimModelHash, bimModelUrl, description, budget));
+        address assetWorkflowAddress = address(new AssetWorkflow(propertyOwner, bimModelHash, bimModelUrl, description, budget, tokenAddress));
         //version 4.x below
         //address assetWorkflowAddress = new AssetWorkflow(propertyOwner, bimModelHash, bimModelUrl, description, budget);
         AssetWorkflows[now] = assetWorkflowAddress;
     }
 
-    function InitializeBimModel(string calldata bimModelUrl, string calldata bimModelHash) external
+    function InitializeBimModel(string memory bimModelUrl, string memory bimModelHash) public
     {
         if( msg.sender != PropertyOwner|| StringHelper.IsStringEmpty(bimModelUrl) || StringHelper.IsStringEmpty(bimModelHash))
         {
@@ -50,12 +52,14 @@ contract Property
 
 contract AssetWorkflow
 {
+    enum AssetWorkflowState { Active, Committed, WorkFinished, Cancelled, Approved, Rejected, Completed  }
     //ContractProperties
     address private _propertyOwner;
     address private _inspector;
     address private _contractor;
     address private _property;
-    SharedModels.AssetWorkflowState public State;
+    address private _tokenAddress;
+    AssetWorkflowState public State;
     //AssetProperties
     string public BimModelHash;
     string public BimModelUrl;
@@ -63,7 +67,7 @@ contract AssetWorkflow
     uint public Budget;
     uint256 public CompletionTime;
     
-    constructor(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget) public
+    constructor(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget, address tokenAddress) public
     {
         _property = msg.sender;
         _propertyOwner = propertyOwner;
@@ -71,21 +75,22 @@ contract AssetWorkflow
         BimModelUrl = bimModelUrl;
         Description = description;
         Budget = budget;
-        State = SharedModels.AssetWorkflowState.Active;
+        _tokenAddress = tokenAddress;
+        State = AssetWorkflowState.Active;
     }
     
     function Cancel() external
     {
-        if (_propertyOwner != msg.sender || State != SharedModels.AssetWorkflowState.Active)
+        if (_propertyOwner != msg.sender || State != AssetWorkflowState.Active)
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.Cancelled;
+        State = AssetWorkflowState.Cancelled;
     }
 
     function ModifyBudget(uint256 budget) external
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (State != AssetWorkflowState.Active)
         {
             revert();
         }
@@ -96,9 +101,9 @@ contract AssetWorkflow
         Budget = budget;
     }
 
-    function ModifyDescription(string calldata description) external
+    function ModifyDescription(string memory description) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (State != AssetWorkflowState.Active)
         {
             revert();
         }
@@ -109,26 +114,27 @@ contract AssetWorkflow
         Description = description;
     }
 
-    function AddContractor(address contractorAddress) external
+    function AddContractor(address contractorAddress) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != AssetWorkflowState.Active || _propertyOwner != msg.sender)
         {
             revert();
         }
         _contractor = contractorAddress;
     }
     
-    function AddInspector(address inspectorAddress) external
+    function AddInspector(address inspectorAddress) public
     {
-        if (State != SharedModels.AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != AssetWorkflowState.Active || _propertyOwner != msg.sender)
         {
             revert();
         }
         _inspector = inspectorAddress;
     }
-    function ValidateInspection(address inspectorAddress) external view returns(bool)
+
+    function ValidateInspection(address inspectorAddress) public view returns(bool)
     {
-        if (_inspector == inspectorAddress && State == SharedModels.AssetWorkflowState.Approved)
+        if (_inspector == inspectorAddress && State == AssetWorkflowState.Approved)
         {
             return true;
         }
@@ -138,9 +144,9 @@ contract AssetWorkflow
         }
     }
 
-    function CommitToWork() external
+    function CommitToWork() public
     {
-        if (State != SharedModels.AssetWorkflowState.Active)
+        if (State != AssetWorkflowState.Active)
         {
             revert();
         }
@@ -148,12 +154,12 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.Committed;
+        State = AssetWorkflowState.Committed;
     }
 
-    function FinishWork() external
+    function FinishWork() public
     {
-        if (State != SharedModels.AssetWorkflowState.Committed)
+        if (State != AssetWorkflowState.Committed)
         {
             revert();
         }
@@ -161,33 +167,37 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.WorkFinished;
+        State = AssetWorkflowState.WorkFinished;
     }
 
-    function InspectWork(bool isWorkValid) external
+    function InspectWork(bool isWorkValid) public
     {
-        if (State != SharedModels.AssetWorkflowState.WorkFinished || _inspector != msg.sender)
+        if (State != AssetWorkflowState.WorkFinished || _inspector != msg.sender)
         {
             revert();
         }
         if(isWorkValid)
         {
+            ERC20 erc20 = ERC20(_tokenAddress);
+            erc20.TransferFrom(_propertyOwner, _contractor, Budget);
+
             CompletionTime = now;
-            State = SharedModels.AssetWorkflowState.Approved;
+            State = AssetWorkflowState.Approved;
             Property property = Property(_property);
             property.UpdateCurrentBimModel(msg.sender);
         }
         else
         {
-            State = SharedModels.AssetWorkflowState.Rejected;
+            State = AssetWorkflowState.Rejected;
         }
     }
-    function CompleteWorkflow() external
+
+    function CompleteWorkflow() public
     {
-        if(msg.sender != _property || State != SharedModels.AssetWorkflowState.Approved)
+        if(msg.sender != _property || State != AssetWorkflowState.Approved)
         {
             revert();
         }
-        State = SharedModels.AssetWorkflowState.Completed;
+        State = AssetWorkflowState.Completed;
     }
 }

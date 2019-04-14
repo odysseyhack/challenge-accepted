@@ -1,0 +1,793 @@
+{
+    "ApplicationName": "PropertyWithWorkflow",
+    "DisplayName": "Property & Workflow",
+    "Description": "A contract for property & workflow",
+    "ApplicationRoles": [
+      {
+        "Name": "PropertyOwner",
+        "Description": "An owner of a property."
+      },
+      {
+        "Name": "Inspector",
+        "Description": "A quality assurance officer."
+      },
+      {
+        "Name": "Contractor",
+        "Description": "A person who construct the building."
+      },
+      {
+        "Name": "Administrator",
+        "Description": "An administrator of a token."
+      },
+      {
+        "Name": "User",
+        "Description": "A person using the tokens"
+      }
+    ],
+    "Workflows": [
+      {
+        "Name": "Property",
+        "DisplayName": "Property",
+        "Description": "Property.",
+        "Initiators": [ "PropertyOwner" ],
+        "StartState": "Active",
+        "Properties": [
+          {
+            "Name": "PropertyOwner",
+            "DisplayName": "Owner",
+            "Description": "Holds the name of the owner.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "CurrentBimModelUrl",
+            "DisplayName": "BIM url",
+            "Description": "Holds the BIM url.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "Address",
+            "DisplayName": "Address",
+            "Description": "Holds the Address.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "State",
+            "DisplayName": "State",
+            "Description": "Holds the state of the contract.",
+            "Type": {
+              "Name": "state"
+            }
+          }
+        ],
+        "Constructor": {
+          "Parameters": [
+            {
+              "Name": "propertyOwner",
+              "DisplayName": "propertyOwner",
+              "Description": "propertyOwner.",
+              "Type": {
+                "Name": "user"
+              }
+            },
+            {
+              "Name": "bimModelHash",
+              "DisplayName": "BIM hash",
+              "Description": "BIM hash",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "bimModelUrl",
+              "DisplayName": "BIM url",
+              "Description": "BIM url",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "description",
+              "DisplayName": "Description",
+              "Description": "Description",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "budget",
+              "DisplayName": "Budget",
+              "Description": "Budget",
+              "Type": {
+                "Name": "int"
+              }
+            }
+          ]
+        },
+        "Functions": [
+          {
+            "Name": "CreateAssetWorkFlow",
+            "DisplayName": "Create Asset Workflow",
+            "Description": "Create Asset Workflow",
+            "Parameters": [
+              {
+                "Name": "propertyOwner",
+                "DisplayName": "Property Owner",
+                "Description": "Property Owner",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "bimModelHash",
+                "DisplayName": "BIM hash",
+                "Description": "BIM hash",
+                "Type": {
+                  "Name": "string"
+                }
+              },
+              {
+                "Name": "bimModelUrl",
+                "DisplayName": "BIM hash",
+                "Description": "BIM hash",
+                "Type": {
+                  "Name": "string"
+                }
+              },
+              {
+                "Name": "description",
+                "DisplayName": "Description",
+                "Description": "Description",
+                "Type": {
+                  "Name": "string"
+                }
+              },
+              {
+                "Name": "budget",
+                "DisplayName": "Budget",
+                "Description": "Budget",
+                "Type": {
+                  "Name": "int"
+                }
+              },
+              {
+                "Name": "tokenAddress",
+                "DisplayName": "tokenAddress",
+                "Description": "tokenAddress",
+                "Type": {
+                  "Name": "address"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "InitializeBimModel",
+            "DisplayName": "Initialize BIM model",
+            "Description": "Initialize BIM model",
+            "Parameters": [
+              {
+                "Name": "bimModelUrl",
+                "DisplayName": "BIM url",
+                "Description": "BIM url",
+                "Type": {
+                  "Name": "string"
+                }
+              },
+              {
+                "Name": "bimModelHash",
+                "DisplayName": "BIM hash",
+                "Description": "BIM hash",
+                "Type": {
+                  "Name": "string"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "UpdateCurrentBimModel",
+            "DisplayName": "Update BIM model",
+            "Description": "Update BIM model",
+            "Parameters": [
+              {
+                "Name": "inspectorAddress",
+                "DisplayName": "Inspector",
+                "Description": "Inspector",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          }
+        ],
+        "States": [
+          {
+            "Name": "Active",
+            "DisplayName": "Active",
+            "Description": "Contract is active and ready for use",
+            "PercentComplete": 50,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "CreateAssetWorkFlow",
+                "DisplayName": "Create Asset Workflow",
+                "Description": "Create Asset Workflow"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "InitializeBimModel",
+                "DisplayName": "Initialize BIM model",
+                "Description": "Initialize BIM model"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "AssetWorkflow",
+        "DisplayName": "Asset Workflow",
+        "Description": "A extended workflow for BIM model.",
+        "Initiators": [ "PropertyOwner" ],
+        "StartState": "Active",
+        "Properties": [
+          {
+            "Name": "BimModelHash",
+            "DisplayName": "BIM model",
+            "Description": "Holds the hash of the BIM model.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "BimModelUrl",
+            "DisplayName": "BIM url",
+            "Description": "Holds the url of the BIM model.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "Description",
+            "DisplayName": "Description",
+            "Description": "Holds a short description.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "Budget",
+            "DisplayName": "Budget",
+            "Description": "Amount of tokens to be released.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "State",
+            "DisplayName": "State",
+            "Description": "Holds the state of the contract.",
+            "Type": {
+              "Name": "state"
+            }
+          }
+        ],
+        "Constructor": {
+          "Parameters": [
+            {
+              "Name": "propertyOwner",
+              "DisplayName": "Property Owner",
+              "Description": "Property Owner",
+              "Type": {
+                "Name": "user"
+              }
+            },
+            {
+              "Name": "bimModelHash",
+              "DisplayName": "BIM hash",
+              "Description": "Holds the hash of the BIM model.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "bimModelUrl",
+              "DisplayName": "BIM url",
+              "Description": "Holds the hash of the BIM model.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "description",
+              "DisplayName": "Description",
+              "Description": "Holds a short description.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "budget",
+              "DisplayName": "Budget",
+              "Description": "Amount of tokens to be released.",
+              "Type": {
+                "Name": "int"
+              }
+            },
+            {
+              "Name": "tokenAddress",
+              "DisplayName": "Token Address",
+              "Description": "Address of the token contract.",
+              "Type": {
+                "Name": "contract"
+              }
+            }
+          ]
+        },
+        "Functions": [
+          {
+            "Name": "Cancel",
+            "DisplayName": "Cancel",
+            "Description": "Cancels the contract instance",
+            "Parameters": []
+          },
+          {
+            "Name": "ModifyBudget",
+            "DisplayName": "Modify Budget",
+            "Description": "Modifies the budget",
+            "Parameters": [
+              {
+                "Name": "budget",
+                "DisplayName": "Adjusted Budget",
+                "Description": "The adjusted budget",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "ModifyDescription",
+            "DisplayName": "Modify Description",
+            "Description": "Modifies the description",
+            "Parameters": [
+              {
+                "Name": "description",
+                "DisplayName": "Modified Description",
+                "Description": "The Modified description",
+                "Type": {
+                  "Name": "string"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "AddContractor",
+            "DisplayName": "Add Contractor",
+            "Description": "Adds a contractor to the contract",
+            "Parameters": [
+              {
+                "Name": "contractorAddress",
+                "DisplayName": "Contractor Address",
+                "Description": "The address of the contractor",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "AddInspector",
+            "DisplayName": "Add Inspector",
+            "Description": "Adds an inspector to the contract",
+            "Parameters": [
+              {
+                "Name": "inspectorAddress",
+                "DisplayName": "Inspector Address",
+                "Description": "The address of the inspector",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "ValidateInspection",
+            "DisplayName": "Validate Inspection",
+            "Description": "Validate Inspection",
+            "Parameters": [
+              {
+                "Name": "inspectorAddress",
+                "DisplayName": "Inspector Address",
+                "Description": "The address of the inspector",
+                "Type": {
+                  "Name": "user"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "CommitToWork",
+            "DisplayName": "Commit to Work",
+            "Description": "Commit to work",
+            "Parameters": []
+          },
+          {
+            "Name": "FinishWork",
+            "DisplayName": "Finish Work",
+            "Description": "Finish work",
+            "Parameters": []
+          },
+          {
+            "Name": "InspectWork",
+            "DisplayName": "Inspect Work",
+            "Description": "Inspect work",
+            "Parameters": [
+              {
+                "Name": "isWorkValid",
+                "DisplayName": "Valid",
+                "Description": "Valid",
+                "Type": {
+                  "Name": "bool"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "CompleteWorkflow",
+            "DisplayName": "Complete Workflow",
+            "Description": "Complete Workflow",
+            "Parameters": []
+          }
+        ],
+        "States": [
+          {
+            "Name": "Active",
+            "DisplayName": "Active",
+            "Description": "Contract is created with initial properties",
+            "PercentComplete": 25,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Cancelled" ],
+                "Function": "Cancel",
+                "DisplayName": "Cancel",
+                "Description": "Cancel"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "ModifyBudget",
+                "DisplayName": "ModifyBudget",
+                "Description": "ModifyBudget"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "AddContractor",
+                "DisplayName": "AddContractor",
+                "Description": "AddContractor"
+              },
+              {
+                "AllowedRoles": [ "PropertyOwner" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Active" ],
+                "Function": "AddInspector",
+                "DisplayName": "AddInspector",
+                "Description": "AddInspector"
+              },
+              {
+                "AllowedRoles": [ "Contractor" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Committed" ],
+                "Function": "CommitToWork",
+                "DisplayName": "CommitToWork",
+                "Description": "CommitToWork"
+              }
+            ]
+          },
+          {
+            "Name": "Committed",
+            "DisplayName": "Committed",
+            "Description": "Contract is committed",
+            "PercentComplete": 50,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "Contractor" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "WorkFinished" ],
+                "Function": "FinishWork",
+                "DisplayName": "FinishWork",
+                "Description": "FinishWork"
+              }
+            ]
+          },
+          {
+            "Name": "WorkFinished",
+            "DisplayName": "WorkFinished",
+            "Description": "The work is finished",
+            "PercentComplete":75,
+            "Value": 1,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [ "Inspector" ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ 
+                  "Approved",
+                  "Rejected"
+                ],
+                "Function": "InspectWork",
+                "DisplayName": "InspectWork",
+                "Description": "InspectWork"
+              }
+            ]
+          },
+          {
+            "Name": "Cancelled",
+            "DisplayName": "Cancelled",
+            "Description": "Cancelled",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          },
+          {
+            "Name": "Approved",
+            "DisplayName": "Approved",
+            "Description": "Approved",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          },
+          {
+            "Name": "Rejected",
+            "DisplayName": "Rejected",
+            "Description": "Rejected",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          },
+          {
+            "Name": "CompleteWorkflow",
+            "DisplayName": "Complete Workflow",
+            "Description": "CompleteWorkflow",
+            "PercentComplete":100,
+            "Value": 1,
+            "Style": "Success",
+            "Transitions": []
+          }
+        ]
+      },
+      {
+        "Name": "ERC20",
+        "DisplayName": "Created Transfer",
+        "Description": "A extended workflow to create a token and transfer value.",
+        "Initiators": [ "Administrator" ],
+        "StartState": "Initialized",
+        "Properties": [
+          {
+            "Name": "TokenName",
+            "DisplayName": "Name",
+            "Description": "Holds the name of the token.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "TokenSymbol",
+            "DisplayName": "Symbol",
+            "Description": "Holds the symbol of the token.",
+            "Type": {
+              "Name": "string"
+            }
+          },
+          {
+            "Name": "TotalSupply",
+            "DisplayName": "Total",
+            "Description": "A total amount of tokens created.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "CirculatingSupply",
+            "DisplayName": "Circulating",
+            "Description": "A circulating amount of tokens created.",
+            "Type": {
+              "Name": "int"
+            }
+          },
+          {
+            "Name": "State",
+            "DisplayName": "State",
+            "Description": "Holds the state of the contract.",
+            "Type": {
+              "Name": "state"
+            }
+          },
+          {
+            "Name": "Administrator",
+            "DisplayName": "Administrator",
+            "Description": "A person creating the token.",
+            "Type": {
+              "Name": "Administrator"
+            }
+          }
+        ],
+        "Constructor": {
+          "Parameters": [
+            {
+              "Name": "supply",
+              "DisplayName": "Total supply",
+              "Description": "A total amount of tokens created.",
+              "Type": {
+                "Name": "int"
+              }
+            },
+            {
+              "Name": "token",
+              "DisplayName": "Token name",
+              "Description": "Holds the name of the token.",
+              "Type": {
+                "Name": "string"
+              }
+            },
+            {
+              "Name": "symbol",
+              "DisplayName": "Token symbol",
+              "Description": "Holds the symbol of the token.",
+              "Type": {
+                "Name": "string"
+              }
+            }
+          ]
+        },
+        "Functions": [
+          {
+            "Name": "Transfer",
+            "DisplayName": "Transfer tokens",
+            "Description": "Sends an amount of tokens from your account",
+            "Parameters": [
+              {
+                "Name": "to",
+                "DisplayName": "Address",
+                "Description": "The address of the recipient",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "value",
+                "DisplayName": "Amount",
+                "Description": "The amount to send",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "TransferFrom",
+            "DisplayName": "Transfer tokens from another wallet",
+            "Description": "Sends an amount of tokens from an account",
+            "Parameters": [
+              {
+                "Name": "from",
+                "DisplayName": "Address",
+                "Description": "The address of the sender",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "to",
+                "DisplayName": "Address",
+                "Description": "The address of the recipient",
+                "Type": {
+                  "Name": "user"
+                }
+              },
+              {
+                "Name": "value",
+                "DisplayName": "Amount",
+                "Description": "The amount to send",
+                "Type": {
+                  "Name": "int"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "Terminate",
+            "DisplayName": "Terminate contract",
+            "Description": "Terminates the contract",
+            "Parameters": []
+          }
+        ],
+        "States": [
+          {
+            "Name": "Initialized",
+            "DisplayName": "Initialized",
+            "Description": "Contract is initialized and ready for use",
+            "PercentComplete": 33,
+            "Value": 0,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [
+                  "Administrator", 
+                  "User" 
+                ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Operational" ],
+                "Function": "Transfer",
+                "DisplayName": "Transfer Tokens",
+                "Description": "Sends an amount of tokens from your account"
+              },
+              {
+                "AllowedRoles": [],
+                "AllowedInstanceRoles": [ "Administrator" ],
+                "NextStates": [ "Terminated" ],
+                "Function": "Terminate",
+                "DisplayName": "Terminate Contract",
+                "Description": "Terminates the contract"
+              }
+            ]
+          },
+          {
+            "Name": "Operational",
+            "DisplayName": "Operational",
+            "Description": "Contract is operational and users can initiate actions",
+            "PercentComplete":66,
+            "Value": 1,
+            "Style": "Success",
+            "Transitions": [
+              {
+                "AllowedRoles": [
+                  "Administrator", 
+                  "User" 
+                ],
+                "AllowedInstanceRoles": [],
+                "NextStates": [ "Operational" ],
+                "Function": "Transfer",
+                "DisplayName": "Transfer Tokens",
+                "Description": "Sends an amount of tokens from your account"
+              },
+              {
+                "AllowedRoles": [],
+                "AllowedInstanceRoles": [ "Administrator" ],
+                "NextStates": [ "Terminated" ],
+                "Function": "Terminate",
+                "DisplayName": "Terminate Contract",
+                "Description": "Terminates the contract"
+              }
+            ]
+          },
+          {
+            "Name": "Terminated",
+            "DisplayName": "Terminated",
+            "Description": "...",
+            "PercentComplete": 100,
+            "Style": "Success",
+            "Transitions": []
+          }
+        ]
+      }
+    ]
+  }
