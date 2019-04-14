@@ -99,7 +99,7 @@
                 "inputs": {
                     "body": {
                         "fileName": "@{variables('fileName')}",
-                        "hash": "@{body('Hash')}"
+                        "fileHash": "@{body('Hash')}"
                     },
                     "statusCode": 201
                 },
