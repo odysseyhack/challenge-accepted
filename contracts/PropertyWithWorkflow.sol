@@ -5,16 +5,16 @@ import "./ERC20.sol";
 
 contract Property
 {
-    enum PropertyState { Active, Disabled }
+    enum StateType { Active }
     address public PropertyOwner;
     string public CurrentBimModelUrl;
     string public CurrentBimModelHash;
     string public Address;    
-    PropertyState public State;
+    StateType public State;
 
     mapping(uint256 => address ) public AssetWorkflows;
 
-    constructor(string memory propertyAddress) public
+    constructor(string propertyAddress) public
     {
         Address = propertyAddress;
     }
@@ -52,14 +52,14 @@ contract Property
 
 contract AssetWorkflow
 {
-    enum AssetWorkflowState { Active, Committed, WorkFinished, Cancelled, Approved, Rejected, Completed  }
+    enum StateType { Active, Committed, WorkFinished, Cancelled, Approved, Rejected, Completed  }
     //ContractProperties
-    address private _propertyOwner;
-    address private _inspector;
+    address private PropertyOwner;
+    address private Inspector;
     address private _contractor;
-    address private _property;
-    address private _tokenAddress;
-    AssetWorkflowState public State;
+    address private PropertyAddress;
+    address private TokenAddress;
+    StateType public State;
     //AssetProperties
     string public BimModelHash;
     string public BimModelUrl;
@@ -69,32 +69,32 @@ contract AssetWorkflow
     
     constructor(address propertyOwner, string memory bimModelHash, string memory bimModelUrl, string memory description, uint256 budget, address tokenAddress) public
     {
-        _property = msg.sender;
-        _propertyOwner = propertyOwner;
+        PropertyAddress = msg.sender;
+        PropertyOwner = propertyOwner;
         BimModelHash = bimModelHash;
         BimModelUrl = bimModelUrl;
         Description = description;
         Budget = budget;
-        _tokenAddress = tokenAddress;
-        State = AssetWorkflowState.Active;
+        TokenAddress = tokenAddress;
+        State = StateType.Active;
     }
     
     function Cancel() external
     {
-        if (_propertyOwner != msg.sender || State != AssetWorkflowState.Active)
+        if (PropertyOwner != msg.sender || State != StateType.Active)
         {
             revert();
         }
-        State = AssetWorkflowState.Cancelled;
+        State = StateType.Cancelled;
     }
 
     function ModifyBudget(uint256 budget) external
     {
-        if (State != AssetWorkflowState.Active)
+        if (State != StateType.Active)
         {
             revert();
         }
-        if (_propertyOwner != msg.sender)
+        if (PropertyOwner != msg.sender)
         {
             revert();
         }
@@ -103,11 +103,11 @@ contract AssetWorkflow
 
     function ModifyDescription(string memory description) public
     {
-        if (State != AssetWorkflowState.Active)
+        if (State != StateType.Active)
         {
             revert();
         }
-        if (_propertyOwner != msg.sender)
+        if (PropertyOwner != msg.sender)
         {
             revert();
         }
@@ -116,7 +116,7 @@ contract AssetWorkflow
 
     function AddContractor(address contractorAddress) public
     {
-        if (State != AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
@@ -125,16 +125,16 @@ contract AssetWorkflow
     
     function AddInspector(address inspectorAddress) public
     {
-        if (State != AssetWorkflowState.Active || _propertyOwner != msg.sender)
+        if (State != StateType.Active || PropertyOwner != msg.sender)
         {
             revert();
         }
-        _inspector = inspectorAddress;
+        Inspector = inspectorAddress;
     }
 
     function ValidateInspection(address inspectorAddress) public view returns(bool)
     {
-        if (_inspector == inspectorAddress && State == AssetWorkflowState.Approved)
+        if (Inspector == inspectorAddress && State == StateType.Approved)
         {
             return true;
         }
@@ -146,7 +146,7 @@ contract AssetWorkflow
 
     function CommitToWork() public
     {
-        if (State != AssetWorkflowState.Active)
+        if (State != StateType.Active)
         {
             revert();
         }
@@ -154,12 +154,12 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = AssetWorkflowState.Committed;
+        State = StateType.Committed;
     }
 
     function FinishWork() public
     {
-        if (State != AssetWorkflowState.Committed)
+        if (State != StateType.Committed)
         {
             revert();
         }
@@ -167,37 +167,37 @@ contract AssetWorkflow
         {
             revert();
         }
-        State = AssetWorkflowState.WorkFinished;
+        State = StateType.WorkFinished;
     }
 
     function InspectWork(bool isWorkValid) public
     {
-        if (State != AssetWorkflowState.WorkFinished || _inspector != msg.sender)
+        if (State != StateType.WorkFinished || Inspector != msg.sender)
         {
             revert();
         }
         if(isWorkValid)
         {
-            ERC20 erc20 = ERC20(_tokenAddress);
-            erc20.TransferFrom(_propertyOwner, _contractor, Budget);
+            ERC20 erc20 = ERC20(TokenAddress);
+            erc20.TransferFrom(PropertyOwner, _contractor, Budget);
 
             CompletionTime = now;
-            State = AssetWorkflowState.Approved;
-            Property property = Property(_property);
+            State = StateType.Approved;
+            Property property = Property(PropertyAddress);
             property.UpdateCurrentBimModel(msg.sender);
         }
         else
         {
-            State = AssetWorkflowState.Rejected;
+            State = StateType.Rejected;
         }
     }
 
     function CompleteWorkflow() public
     {
-        if(msg.sender != _property || State != AssetWorkflowState.Approved)
+        if(msg.sender != PropertyAddress || State != StateType.Approved)
         {
             revert();
         }
-        State = AssetWorkflowState.Completed;
+        State = StateType.Completed;
     }
 }
